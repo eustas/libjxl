@@ -313,7 +313,8 @@ void TestFloat() {
             BitCast(df, Or(ShiftRight<9>(bits), Set(du, 0x3F800000)));
         const auto rand01 = Sub(rand12, Set(df, 1.0f));
         Store(rand01, df, lanes);
-        for (float lane : lanes) {
+        for (size_t j = 0; j < Lanes(df); ++j) {
+          float lane = lanes[j];
           sum += lane;
           count += 1;
           EXPECT_LE(lane, 1.0f);

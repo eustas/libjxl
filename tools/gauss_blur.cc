@@ -270,23 +270,23 @@ void VerticalBlock(const V& d1_1, const V& d1_3, const V& d1_5, const V& n2_1,
   const size_t n_1 = (ctr - 1) % kMod;
   const size_t n_2 = (ctr - 2) % kMod;
 
-  for (size_t idx_vec = 0; idx_vec < kVectors; ++idx_vec) {
-    const V sum = input(idx_vec * kVN);
+  for (size_t idx_vec = 0; idx_vec < kLanes; idx_vec += Lanes(d)) {
+    const V sum = input(idx_vec);
 
-    const V y_n1_1 = Load(d, y_1 + kLanes * n_1 + idx_vec * kVN);
-    const V y_n1_3 = Load(d, y_3 + kLanes * n_1 + idx_vec * kVN);
-    const V y_n1_5 = Load(d, y_5 + kLanes * n_1 + idx_vec * kVN);
-    const V y_n2_1 = Load(d, y_1 + kLanes * n_2 + idx_vec * kVN);
-    const V y_n2_3 = Load(d, y_3 + kLanes * n_2 + idx_vec * kVN);
-    const V y_n2_5 = Load(d, y_5 + kLanes * n_2 + idx_vec * kVN);
+    const V y_n1_1 = Load(d, y_1 + kLanes * n_1 + idx_vec);
+    const V y_n1_3 = Load(d, y_3 + kLanes * n_1 + idx_vec);
+    const V y_n1_5 = Load(d, y_5 + kLanes * n_1 + idx_vec);
+    const V y_n2_1 = Load(d, y_1 + kLanes * n_2 + idx_vec);
+    const V y_n2_3 = Load(d, y_3 + kLanes * n_2 + idx_vec);
+    const V y_n2_5 = Load(d, y_5 + kLanes * n_2 + idx_vec);
     // (35)
     const V y1 = MulAdd(n2_1, sum, NegMulSub(d1_1, y_n1_1, y_n2_1));
     const V y3 = MulAdd(n2_3, sum, NegMulSub(d1_3, y_n1_3, y_n2_3));
     const V y5 = MulAdd(n2_5, sum, NegMulSub(d1_5, y_n1_5, y_n2_5));
-    Store(y1, d, y_1 + kLanes * n_0 + idx_vec * kVN);
-    Store(y3, d, y_3 + kLanes * n_0 + idx_vec * kVN);
-    Store(y5, d, y_5 + kLanes * n_0 + idx_vec * kVN);
-    output(Add(y1, Add(y3, y5)), out_pos, idx_vec * kVN);
+    Store(y1, d, y_1 + kLanes * n_0 + idx_vec);
+    Store(y3, d, y_3 + kLanes * n_0 + idx_vec);
+    Store(y5, d, y_5 + kLanes * n_0 + idx_vec);
+    output(Add(y1, Add(y3, y5)), out_pos, idx_vec);
   }
   // NOTE: flushing cache line out_pos hurts performance - less so with
   // clflushopt than clflush but still a significant slowdown.

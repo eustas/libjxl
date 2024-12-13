@@ -18,6 +18,7 @@ namespace jxl {
 namespace HWY_NAMESPACE {
 
 using hwy::HWY_NAMESPACE::Add;
+using hwy::HWY_NAMESPACE::GetLane;
 
 namespace {
 
@@ -44,7 +45,7 @@ namespace {
   }                                                                  \
   /* floats per second */                                            \
   state.SetItemsProcessed(state.iterations() * Lanes(d) * 3 * kNum); \
-  benchmark::DoNotOptimize(Add(sum1, Add(sum2, sum3)));
+  benchmark::DoNotOptimize(GetLane(SumOfLanes(df, Add(sum1, Add(sum2, sum3)))));
 
 #define RUN_BENCHMARK_SCALAR(F, I)                           \
   constexpr size_t kNum = 1 << 12;                           \

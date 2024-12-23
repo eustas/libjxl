@@ -303,11 +303,12 @@ void TestFloat() {
 
     const HWY_FULL(uint32_t) du;
     const HWY_FULL(float) df;
-    HWY_ALIGN uint64_t batch[Xorshift128Plus::N];
-    JXL_TEST_ASSIGN_OR_DIE(
-        AlignedMemory mem,
-        AlignedMemory::Create(memory_manager, Lanes(df) * sizeof(float)));
-    float* lanes = mem.address<float>();
+    size_t mem_size =
+        Xorshift128Plus::N * sizeof(uint64_t) + Lanes(df) * sizeof(float);
+    JXL_TEST_ASSIGN_OR_DIE(AlignedMemory mem,
+                           AlignedMemory::Create(memory_manager, mem_size));
+    uint64_t* batch = mem.address<uint64_t>();
+    float* lanes = mem.address<float>() + Xorshift128Plus::N * 2;
     double sum = 0.0;
     size_t count = 0;
     const size_t kReps = 2000;

@@ -388,7 +388,7 @@ TEST(JxlTest, RoundtripLargeFast) {
   EXPECT_SLIGHTLY_BELOW(ComputeDistance2(t.ppf(), ppf_out), 78);
 }
 
-JXL_X86_64_TEST(JxlTest, RoundtripLargeEmptyModular) {
+JXL_NOT_X86_32_TEST(JxlTest, RoundtripLargeEmptyModular) {
   ThreadPoolForTests pool(8);
   TestImage t;
   ASSERT_TRUE(t.SetDimensions(4096, 4096));
@@ -1903,7 +1903,7 @@ class JxlStreamingEncodingTest
     : public ::testing::TestWithParam<StreamingEncodingTestParam> {};
 
 // This is broken on mingw32, so we only enable it for x86_64 now.
-JXL_X86_64_TEST_P(JxlStreamingEncodingTest, StreamingSamePixels) {
+JXL_NOT_X86_32_TEST_P(JxlStreamingEncodingTest, StreamingSamePixels) {
   const auto param = GetParam();
 
   const std::vector<uint8_t> orig = ReadTestData(param.file);

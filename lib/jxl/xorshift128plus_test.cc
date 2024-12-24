@@ -303,7 +303,8 @@ void TestFloat() {
 
     const HWY_FULL(uint32_t) du;
     const HWY_FULL(float) df;
-    HWY_ALIGN uint64_t batch[Xorshift128Plus::N];
+    HWY_ALIGN uint64_t batch64[Xorshift128Plus::N];
+    HWY_ALIGN uint32_t batch[Xorshift128Plus::N * 2];
     JXL_TEST_ASSIGN_OR_DIE(
         AlignedMemory mem,
         AlignedMemory::Create(memory_manager, Lanes(df) * sizeof(float)));
@@ -312,10 +313,12 @@ void TestFloat() {
     size_t count = 0;
     const size_t kReps = 2000;
     for (size_t reps = 0; reps < kReps; ++reps) {
-      rng.Fill(batch);
+      rng.Fill(batch64);
+      // Workaround for Clang SVE2_128 bug. Compiler elides storage to uint64_t
+      // out, because it thinks nobody reads that.
+      memcpy(batch, batch64, sizeof(batch64));
       for (size_t i = 0; i < Xorshift128Plus::N * 2; i += Lanes(df)) {
-        const auto bits =
-            Load(du, reinterpret_cast<const uint32_t*>(batch) + i);
+        const auto bits = Load(du, batch + i);
         // 1.0 + 23 random mantissa bits = [1, 2)
         const auto rand12 =
             BitCast(df, Or(ShiftRight<9>(bits), Set(du, 0x3F800000)));

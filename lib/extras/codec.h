@@ -31,14 +31,16 @@ Status SetFromBytes(Span<const uint8_t> bytes,
                     const extras::ColorHints& color_hints, CodecInOut* io,
                     ThreadPool* pool = nullptr,
                     const SizeConstraints* constraints = nullptr,
-                    extras::Codec* orig_codec = nullptr);
+                    extras::Codec* orig_codec = nullptr,
+                    bool coalesce = true);
 // Helper function to use no color_space_hint.
 JXL_INLINE Status SetFromBytes(const Span<const uint8_t> bytes, CodecInOut* io,
                                ThreadPool* pool = nullptr,
                                const SizeConstraints* constraints = nullptr,
-                               extras::Codec* orig_codec = nullptr) {
+                               extras::Codec* orig_codec = nullptr,
+                               bool coalesce = true) {
   return SetFromBytes(bytes, extras::ColorHints(), io, pool, constraints,
-                      orig_codec);
+                      orig_codec, coalesce);
 }
 
 Status Encode(const extras::PackedPixelFile& ppf, extras::Codec codec,

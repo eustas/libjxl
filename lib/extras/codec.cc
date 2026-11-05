@@ -37,12 +37,12 @@ constexpr size_t kMinBytes = 9;
 Status SetFromBytes(const Span<const uint8_t> bytes,
                     const extras::ColorHints& color_hints, CodecInOut* io,
                     ThreadPool* pool, const SizeConstraints* constraints,
-                    extras::Codec* orig_codec) {
+                    extras::Codec* orig_codec, bool coalesce) {
   if (bytes.size() < kMinBytes) return JXL_FAILURE("Too few bytes");
 
   extras::PackedPixelFile ppf;
   if (extras::DecodeBytes(bytes, color_hints, &ppf, constraints, orig_codec,
-                          io->memory_manager)) {
+                          io->memory_manager, coalesce)) {
     return ConvertPackedPixelFileToCodecInOut(ppf, pool, io);
   }
   return JXL_FAILURE("Codecs failed to decode");

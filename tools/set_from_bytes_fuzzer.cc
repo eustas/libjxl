@@ -44,8 +44,9 @@ Status Run(const uint8_t* data, size_t size, JxlMemoryManager* memory_manager,
   auto io = jxl::make_unique<CodecInOut>(memory_manager);
   ThreadPoolInternal pool(0);
 
-  (void)jxl::SetFromBytes(Bytes(data, size), io.get(), pool.get(),
-                          &constraints);
+  (void)jxl::SetFromBytes(Bytes(data, size), io.get(), pool.get(), &constraints,
+                          /*orig_codec=*/nullptr,
+                          /*coalesce=*/false);
   return true;
 }
 

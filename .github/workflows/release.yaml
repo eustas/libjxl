@@ -179,7 +179,6 @@ jobs:
       # after the version number so newer release candidates can override older
       # ones.
       if: github.event_name != 'release'
-      shell: 'bash'
       run: |
         # Committer timestamp.
         set -x
@@ -195,7 +194,6 @@ jobs:
     - name: Stamp release versions
       # Mark the version as released
       if: github.event_name == 'release'
-      shell: 'bash'
       run: |
         if head -n1 debian/changelog | grep UNRELEASED; then
           dch -M --distribution unstable --release ''
@@ -275,6 +273,10 @@ jobs:
       BUILD_TYPE: ${{ matrix.build_type || 'Release' }}
       PREFIX: ${{matrix.triplet}}
 
+    defaults:
+      run:
+        shell: bash
+
     steps:
     - name: Harden Runner
       uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
@@ -307,7 +309,6 @@ jobs:
           -O vcpkg.zip
     - name: Bootstrap vcpkg
       if: github.event_name == 'release' || steps.cache-vcpkg.outputs.cache-hit != 'true'
-      shell: 'bash'
       run: |
         set -x
         unzip -q vcpkg.zip
@@ -316,7 +317,6 @@ jobs:
         ${VCPKG_ROOT}/bootstrap-vcpkg.sh
 
     - name: Install libraries with vcpkg
-      shell: 'bash'
       run: |
         set -x
         ${VCPKG_ROOT}/vcpkg --triplet ${{ matrix.triplet }} install \
@@ -328,7 +328,6 @@ jobs:
         #
 
     - name: Configure
-      shell: 'bash'
       run: |
         set -x
         mkdir build
@@ -348,12 +347,10 @@ jobs:
           -DX_VCPKG_APPLOCAL_DEPS_INSTALL=${{ matrix.static == 'OFF' && 'ON' || 'OFF' }} \
         #
     - name: Build
-      shell: 'bash'
       run: |
         set -x
         cmake --build build --config ${BUILD_TYPE}
     - name: Install
-      shell: 'bash'
       run: |
         set -x
         cmake --build build --config ${BUILD_TYPE} --target install
@@ -369,7 +366,6 @@ jobs:
         cp LICENSE ${PREFIX}/licenses/LICENSE.libjxl
 
     - name: Fast benchmark ${{ matrix.triplet }}
-      shell: 'bash'
       if: matrix.run_benchmark && true
       run: |
         systeminfo | grep -A 1 Processor
@@ -380,7 +376,6 @@ jobs:
         BUILD_CONFIG=Release/ BENCHMARK_NUM_THREADS=2 STORE_IMAGES=0 ./ci.sh fast_benchmark
 
     - name: Package release
-      shell: 'bash'
       if: matrix.upload != 'OFF'
       run: |
         7z -mx=9 -mfb=273 a jxl-${{matrix.triplet}}.7z ${PREFIX}/bin ${PREFIX}/include ${PREFIX}/lib ${PREFIX}/licenses

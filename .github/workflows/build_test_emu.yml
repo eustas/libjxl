@@ -21,7 +21,6 @@ concurrency:
 jobs:
   compile:
     name: Build under ${{ matrix.platform }} emulator
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'CI:none') }}
     runs-on: 'ubuntu-latest'
     strategy:
       fail-fast: false
@@ -50,7 +49,6 @@ jobs:
       id: git-env
       run: |
         echo "parent=$(git rev-parse ${{ github.sha }}^)" >> $GITHUB_OUTPUT
-      shell: bash
 
     - name: ccache
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -60,9 +58,9 @@ jobs:
         # of the same Pull Request it will reuse the cache if still around. For
         # either Pull Requests or new pushes to main, this will use the parent
         # hash as the starting point from the restore-keys entry.
-        key: build-${{ runner.os }}-${{ github.sha }}-${{ matrix.name }}
+        key: build-${{ runner.os }}-${{ github.sha }}-${{ matrix.platform }}
         restore-keys: |
-          build-${{ runner.os }}-${{ steps.git-env.outputs.parent }}-${{ matrix.name }}
+          build-${{ runner.os }}-${{ steps.git-env.outputs.parent }}-${{ matrix.platform }}
 
     - name: ccache config
       run: |
@@ -110,7 +108,6 @@ jobs:
 
   test:
     name: Testing ${{ matrix.identifier }} shard ${{ matrix.shard_number }}
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'CI:none') }}
     needs: compile
     runs-on: 'ubuntu-latest'
     strategy:
